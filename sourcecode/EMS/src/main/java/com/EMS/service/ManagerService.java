@@ -21,53 +21,55 @@ import com.EMS.utility.FunctionResponse;
 public class ManagerService {
 
 	public static List<DirectoryDetails> getAllDirectories(int eId) throws SQLException {
-		// TODO Auto-generated method stub
-		List<DirectoryDetails> directory = ManagerDao.getAllDirectories(eId);
-		Registration register = EmployeeDao.getUserDetails(eId);
-		for (DirectoryDetails directoryDetails : directory) {
-			directoryDetails.setPermissions(ManagerDao.getPermission(directoryDetails.getPermissionId()));
-			String[] access = directoryDetails.getAccessibleIds().split(",");
-			String accessing = "";
-			for(int i=0;i<access.length;i++){
-				if((access[i].equalsIgnoreCase("ALL"))){
-					accessing = "ALL";
-				}
-				else{
-					accessing = accessing + ManagerDao.getName(Integer.parseInt(access[i])) + ",";
-				}
-			}
-			directoryDetails.setAccessibleBy(accessing);
-			directoryDetails.setCreatedBy(register.getFirstname()+" "+register.getLastname());
-			
-			//ATE details
-			String ATE = directoryDetails.getATE();
-			String[] ate = null;String ateRequests = "";
-			if(ATE.equalsIgnoreCase("NA") || ATE.equals(null)){
-				ateRequests = "NA";
-			}else{
-				ate = directoryDetails.getATE().split(",");
-				for(int i=0;i<ate.length;i++){
-					if((ate[i].equalsIgnoreCase("NA"))){
-						ateRequests = "NA";
-					}
-					else{
-						ateRequests = ateRequests + ManagerDao.getName(Integer.parseInt(ate[i])) + ",";
-					}
-				}
-			}
-			directoryDetails.setAteBy(ateRequests);
-		}
-		/*List<DirectoryDetails> publicDirectory = ManagerDao.getAllPublicDirectories();//Public directories of all managers
-		for (DirectoryDetails directoryDetails2 : publicDirectory) {
-			Registration register2 = EmployeeDao.getUserDetails(directoryDetails2.getManagerId());
-			directoryDetails2.setCreatedBy(register2.getFirstname()+" "+register2.getLastname());
-			directoryDetails2.setAccessibleBy("ALL");
-			directoryDetails2.setPermissions(ManagerDao.getPermission(directoryDetails2.getPermissionId()));
-		}
-		List<DirectoryDetails> newList = new ArrayList<DirectoryDetails>(directory);
-		newList.addAll(publicDirectory);//Merging all directories*/ 		
-		return directory;
+	    // TODO Auto-generated method stub
+	    List<DirectoryDetails> directory = ManagerDao.getAllDirectories(eId);
+	    Registration register = EmployeeDao.getUserDetails(eId);
+	    for (DirectoryDetails directoryDetails : directory) {
+	        directoryDetails.setPermissions(ManagerDao.getPermission(directoryDetails.getPermissionId()));
+	        
+	        // Kiểm tra và gán giá trị mặc định cho AccessibleIds nếu là null
+	        String accessibleIds = directoryDetails.getAccessibleIds() != null ? directoryDetails.getAccessibleIds() : "";
+	        String[] access = accessibleIds.split(",");
+	        
+	        String accessing = "";
+	        for (int i = 0; i < access.length; i++) {
+	            if (!access[i].isEmpty()) {
+	                if (access[i].equalsIgnoreCase("ALL")) {
+	                    accessing = "ALL";
+	                } else {
+	                    accessing = accessing + ManagerDao.getName(Integer.parseInt(access[i])) + ",";
+	                }
+	            }
+	        }
+	        directoryDetails.setAccessibleBy(accessing);
+	        directoryDetails.setCreatedBy(register.getFirstname() + " " + register.getLastname());
+	        
+	        // ATE details
+	        String ATE = directoryDetails.getATE();
+	        String[] ate = null;
+	        String ateRequests = "";
+	        
+	        // Kiểm tra và gán giá trị mặc định cho ATE nếu là null
+	        if (ATE == null || ATE.equalsIgnoreCase("NA")) {
+	            ateRequests = "NA";
+	        } else {
+	            ate = ATE.split(",");
+	            for (int i = 0; i < ate.length; i++) {
+	                if (!ate[i].isEmpty()) {
+	                    if (ate[i].equalsIgnoreCase("NA")) {
+	                        ateRequests = "NA";
+	                    } else {
+	                        ateRequests = ateRequests + ManagerDao.getName(Integer.parseInt(ate[i])) + ",";
+	                    }
+	                }
+	            }
+	        }
+	        directoryDetails.setAteBy(ateRequests);
+	    }
+	    return directory;
 	}
+
+	
 
 	public static List<Permission> getAllPermission() throws SQLException {
 		List<Permission> permission = ManagerDao.getAllPermission();
